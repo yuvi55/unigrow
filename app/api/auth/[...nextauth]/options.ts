@@ -110,7 +110,38 @@ export const options: NextAuthOptions = {
             isEmailVerified: true,
             refreshToken: credentials?.refreshToken,
             provider: "google",
-            googleId: user?.id
+            googleId: user?.id,
+            apiKey_hashed: null,
+            avatar_url: profile?.picture,
+            bio: "Guest User",
+            courses: [
+              "CPE 590",
+
+              "CS 561",
+
+              "CS 583",
+
+              "CS 513",
+
+              "CS 545",
+
+              "FE 511",
+
+              "FE 520",
+
+              "CS 541",
+
+              "CS 562",
+
+              "FE 513"
+            ],
+            id: null,
+            login_id: profile?.email,
+            primary_email: profile?.email,
+            sortable_name: profile?.name,
+            canvasToken_hashed: null,
+            joiningTerm: null,
+            major: "Mechanical Engineering"
           }
 
           const insertInfo = await usersCollection.insertOne(newUser)
