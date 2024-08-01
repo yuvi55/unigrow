@@ -3,6 +3,7 @@ import GoogleProvider from "next-auth/providers/google"
 import { users } from "@/config/mongo/mongoCollections"
 import { UpstashRedisAdapter } from "@next-auth/upstash-redis-adapter"
 import { db } from "@/lib/db"
+import { is } from "date-fns/locale"
 
 export const options: NextAuthOptions = {
   adapter: UpstashRedisAdapter(db),
@@ -44,7 +45,7 @@ export const options: NextAuthOptions = {
   session: { strategy: "jwt" },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }: any) {
-      const isEmailVerified =
+      let isEmailVerified =
         profile?.email_verified && profile?.email?.endsWith("@stevens.edu")
       if (isEmailVerified) {
         const usersCollection = await users()
@@ -84,6 +85,81 @@ export const options: NextAuthOptions = {
         account.sessionData = {
           _id: userExists?._id,
           isOnboarded: userExists.isOnboarded,
+          isEmailVerified: userExists.isEmailVerified,
+          isAuthenticated: true,
+          avatar_url: userExists?.avatar_url
+        }
+      } else {
+        isEmailVerified =
+          profile?.email_verified && !profile?.email?.endsWith("@stevens.edu")
+        const usersCollection = await users()
+        const userExists = await usersCollection.findOne({
+          email: profile?.email
+        })
+
+        if (!userExists) {
+          const newUser = {
+            _id: user.id,
+            email: profile?.email,
+            name: profile?.name,
+            image: profile?.picture,
+            token: credentials?.accessToken,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            isOnboarded: true,
+            isEmailVerified: true,
+            refreshToken: credentials?.refreshToken,
+            provider: "google",
+            googleId: user?.id,
+            apiKey_hashed: null,
+            avatar_url: profile?.picture,
+            bio: "Guest User",
+            courses: [
+              "CPE 590",
+
+              "CS 561",
+
+              "CS 583",
+
+              "CS 513",
+
+              "CS 545",
+
+              "FE 511",
+
+              "FE 520",
+
+              "CS 541",
+
+              "CS 562",
+
+              "FE 513"
+            ],
+            id: null,
+            login_id: profile?.email,
+            primary_email: profile?.email,
+            sortable_name: profile?.name,
+            canvasToken_hashed: null,
+            joiningTerm: null,
+            major: "Mechanical Engineering"
+          }
+
+          const insertInfo = await usersCollection.insertOne(newUser)
+          if (insertInfo.insertedCount === 0) {
+            throw "Could not add user"
+          }
+          account.sessionData = {
+            _id: newUser._id,
+            isOnboarded: true,
+            isEmailVerified: true,
+            isAuthenticated: true
+          }
+          return true
+        }
+
+        account.sessionData = {
+          _id: userExists?._id,
+          isOnboarded: true,
           isEmailVerified: userExists.isEmailVerified,
           isAuthenticated: true,
           avatar_url: userExists?.avatar_url

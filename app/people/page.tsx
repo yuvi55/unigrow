@@ -132,7 +132,7 @@ const People = () => {
                             <CommandList>
                               <CommandEmpty>No courses found.</CommandEmpty>
                               <CommandGroup>
-                                {user.courses.map((course: string) => (
+                                {user.courses?.map((course: string) => (
                                   <Link
                                     key={user._id + course}
                                     href={`/course/${encodeURI(course)}`}
