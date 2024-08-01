@@ -14,7 +14,6 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 ## Live Demos
 
 - [Heroku Demo](https://unigrow-a732c2389a03.herokuapp.com/)
-- [Vercel Demo](https://unigrow.vercel.app/)
 
 ## Getting Started
 
